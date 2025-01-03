@@ -19,7 +19,6 @@ export default function Home() {
         />
         <div className="w-3/4 p-4 space-y-6">
           <ExperimentForm />
-          <TestCaseForm onSubmit={() => console.log("Test case added!")} />
         </div>
       </div>
     </div>

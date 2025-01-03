@@ -1,11 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { db } from "@/db/index";
-import { systemPrompts } from "@/db/schema";
+import { llms } from "@/db/schema";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
     try {
-      const data = await db.select().from(systemPrompts).execute();
+      const data = await db.select().from(llms).execute();
       return res.status(200).json(data);
     } catch (error) {
       console.error(error);
