@@ -8,6 +8,20 @@
       "when": 1735856385605,
       "tag": "0000_wild_photon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1735916906441,
+      "tag": "0001_stiff_scarlet_spider",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1735918020160,
+      "tag": "0002_public_human_torch",
+      "breakpoints": true
     }
   ]
 }

@@ -2,20 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Apply a consistent global font */
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply font-sans bg-gray-50 text-gray-800;
+  margin: 0;
+  padding: 0;
+}
+
+/* Styling for links */
+a {
+  @apply text-blue-600 hover:text-blue-800 underline;
+}
+
+/* Custom global header and footer styles */
+header, footer {
+  @apply bg-gray-100 p-4 shadow;
+}
+
+/* Ensure consistent spacing and box-sizing */
+* {
+  box-sizing: border-box;
+}
+
+/* Remove list styles globally */
+ul {
+  @apply list-none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Button styles (can be overridden locally) */
+button {
+  @apply bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition-colors;
+}
+
+/* Input and select elements */
+input, select {
+  @apply border rounded-md p-2 w-full;
 }

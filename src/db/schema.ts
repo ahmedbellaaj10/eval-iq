@@ -1,40 +1,65 @@
-import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, timestamp, integer, jsonb, numeric } from "drizzle-orm/pg-core";
 
-export const llms = pgTable('llms', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  description: text('description'),
-  api_url: text('api_url'),
-  created_at: timestamp('created_at').defaultNow(),
+// LLMs table
+export const llms = pgTable("llms", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  provider: text("provider").notNull(),
+  description: text("description"),
+  created_at: timestamp("created_at").defaultNow(),
 });
 
-export const testCases = pgTable('test_cases', {
-  id: serial('id').primaryKey(),
-  user_message: text('user_message').notNull(),
-  expected_output: text('expected_output').notNull(),
-  grader_type: text('grader_type'),
-  created_at: timestamp('created_at').defaultNow(),
+
+// Test cases table
+export const testCases = pgTable("test_cases", {
+  id: serial("id").primaryKey(),
+  prompt: text("prompt").notNull(),
+  expected_output: text("expected_output").notNull(),
+  system_prompt_id: integer("system_prompt_id")
+    .references(() => systemPrompts.id)
+    .notNull(),
+  created_at: timestamp("created_at").defaultNow(),
 });
 
-export const experiments = pgTable('experiments', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  system_prompt: text('system_prompt').notNull(),
-  llm_id: integer('llm_id').references(() => llms.id),
-  created_at: timestamp('created_at').defaultNow(),
+
+// System prompts table
+export const systemPrompts = pgTable("system_prompts", {
+  id: serial("id").primaryKey(),
+  prompt: text("prompt").notNull(),
+  iq_aspect: text("iq_aspect").notNull(), // Single value for IQ aspect
+  created_at: timestamp("created_at").defaultNow(),
 });
 
-export const experimentTestCases = pgTable('experiment_test_cases', {
-  id: serial('id').primaryKey(),
-  experiment_id: integer('experiment_id').references(() => experiments.id),
-  test_case_id: integer('test_case_id').references(() => testCases.id),
+// Experiments table
+export const experiments = pgTable("experiments", {
+  id: serial("id").primaryKey(),
+  llm_id: integer("llm_id").references(() => llms.id).notNull(),
+  system_prompt_id: integer("system_prompt_id")
+    .references(() => systemPrompts.id)
+    .notNull(),
+  aggregate_score: jsonb("aggregate_score"),
+  created_at: timestamp("created_at").defaultNow(),
 });
 
-export const results = pgTable('results', {
-  id: serial('id').primaryKey(),
-  experiment_id: integer('experiment_id').references(() => experiments.id),
-  test_case_id: integer('test_case_id').references(() => testCases.id),
-  score: integer('score'),
-  response: text('response'),
-  created_at: timestamp('created_at').defaultNow(),
+// Evaluation results table
+export const evaluationResults = pgTable("evaluation_results", {
+  id: serial("id").primaryKey(),
+  experiment_id: integer("experiment_id").references(() => experiments.id),
+  test_case_id: integer("test_case_id").references(() => testCases.id),
+  result: text("result").notNull(),
+  score: integer("score"),
+  created_at: timestamp("created_at").defaultNow(),
+});
+
+// Experiment scores table
+export const experimentTestCaseScores = pgTable("experiment_test_case_scores", {
+  id: serial("id").primaryKey(),
+  experiment_id: integer("experiment_id").references(() => experiments.id).notNull(),
+  test_case_id: integer("test_case_id").references(() => testCases.id).notNull(),
+  bleu_score: numeric("bleu_score"),  // Use numeric for floating-point fields
+  rouge_score: numeric("rouge_score"),
+  sbert_score: numeric("sbert_score"),
+  qag_score: numeric("qag_score"),
+  g_eval_score: numeric("g_eval_score"),
+  created_at: timestamp("created_at").defaultNow(),
 });

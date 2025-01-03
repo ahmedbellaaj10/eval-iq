@@ -1,0 +1,408 @@
+{
+  "id": "d3183e48-8b3d-470c-b512-09044844d4a9",
+  "prevId": "38d2d9a7-1156-4a5e-8b95-dd17dabaa11f",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.evaluation_results": {
+      "name": "evaluation_results",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "experiment_id": {
+          "name": "experiment_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "test_case_id": {
+          "name": "test_case_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "result": {
+          "name": "result",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "score": {
+          "name": "score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "evaluation_results_experiment_id_experiments_id_fk": {
+          "name": "evaluation_results_experiment_id_experiments_id_fk",
+          "tableFrom": "evaluation_results",
+          "tableTo": "experiments",
+          "columnsFrom": [
+            "experiment_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "evaluation_results_test_case_id_test_cases_id_fk": {
+          "name": "evaluation_results_test_case_id_test_cases_id_fk",
+          "tableFrom": "evaluation_results",
+          "tableTo": "test_cases",
+          "columnsFrom": [
+            "test_case_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.experiment_test_case_scores": {
+      "name": "experiment_test_case_scores",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "experiment_id": {
+          "name": "experiment_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "test_case_id": {
+          "name": "test_case_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bleu_score": {
+          "name": "bleu_score",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rouge_score": {
+          "name": "rouge_score",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sbert_score": {
+          "name": "sbert_score",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "qag_score": {
+          "name": "qag_score",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "g_eval_score": {
+          "name": "g_eval_score",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "experiment_test_case_scores_experiment_id_experiments_id_fk": {
+          "name": "experiment_test_case_scores_experiment_id_experiments_id_fk",
+          "tableFrom": "experiment_test_case_scores",
+          "tableTo": "experiments",
+          "columnsFrom": [
+            "experiment_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "experiment_test_case_scores_test_case_id_test_cases_id_fk": {
+          "name": "experiment_test_case_scores_test_case_id_test_cases_id_fk",
+          "tableFrom": "experiment_test_case_scores",
+          "tableTo": "test_cases",
+          "columnsFrom": [
+            "test_case_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.experiments": {
+      "name": "experiments",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "llm_id": {
+          "name": "llm_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "system_prompt_id": {
+          "name": "system_prompt_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aggregate_score": {
+          "name": "aggregate_score",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "experiments_llm_id_llms_id_fk": {
+          "name": "experiments_llm_id_llms_id_fk",
+          "tableFrom": "experiments",
+          "tableTo": "llms",
+          "columnsFrom": [
+            "llm_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "experiments_system_prompt_id_system_prompts_id_fk": {
+          "name": "experiments_system_prompt_id_system_prompts_id_fk",
+          "tableFrom": "experiments",
+          "tableTo": "system_prompts",
+          "columnsFrom": [
+            "system_prompt_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.llms": {
+      "name": "llms",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider": {
+          "name": "provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.system_prompts": {
+      "name": "system_prompts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "iq_aspect": {
+          "name": "iq_aspect",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.test_cases": {
+      "name": "test_cases",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "prompt": {
+          "name": "prompt",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expected_output": {
+          "name": "expected_output",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "system_prompt_id": {
+          "name": "system_prompt_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "test_cases_system_prompt_id_system_prompts_id_fk": {
+          "name": "test_cases_system_prompt_id_system_prompts_id_fk",
+          "tableFrom": "test_cases",
+          "tableTo": "system_prompts",
+          "columnsFrom": [
+            "system_prompt_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
