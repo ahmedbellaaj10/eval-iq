@@ -10,7 +10,7 @@ const ExperimentForm = () => {
   const [selectedLlm, setSelectedLlm] = useState("");
   const [selectedSystemPrompt, setSelectedSystemPrompt] = useState<any>(null);
   const [experiment, setExperiment] = useState<any>(null);
-  const [filteredTestCases, setFilteredTestCases] = useState([]);
+  const [filteredTestCases, setFilteredTestCases] = useState<any[]>([]);
   const [selectedTestCase, setSelectedTestCase] = useState("");
 
   // Fetch initial data
@@ -33,18 +33,22 @@ const ExperimentForm = () => {
     fetchData();
   }, []);
 
-  // Update the system prompt when the IQ aspect is selected
+  // Update system prompt and filter test cases when IQ aspect changes
   useEffect(() => {
     const prompt = systemPrompts.find(
       (prompt: any) => prompt.iq_aspect === selectedIQAspect
     );
     setSelectedSystemPrompt(prompt || null);
 
-    // Filter test cases based on the selected IQ aspect
-    const filtered = testCases.filter(
-      (testCase: any) => testCase.iq_aspect === selectedIQAspect
-    );
-    setFilteredTestCases(filtered);
+    // Filter test cases based on system_prompt_id
+    if (prompt) {
+      const filtered = testCases.filter(
+        (testCase: any) => testCase.system_prompt_id === prompt.id
+      );
+      setFilteredTestCases(filtered);
+    } else {
+      setFilteredTestCases([]);
+    }
   }, [selectedIQAspect, systemPrompts, testCases]);
 
   const handleLoadExperiment = async () => {
@@ -61,13 +65,22 @@ const ExperimentForm = () => {
           system_prompt_id: selectedSystemPrompt.id,
         },
       });
-
       setExperiment(response.data);
       alert("Experiment loaded successfully!");
     } catch (error) {
       console.error("Error fetching experiment:", error);
       alert("Failed to fetch experiment. Please try again.");
     }
+  };
+
+  const handleRunExperiment = () => {
+    if (!experiment || !selectedTestCase) {
+      alert("Please select an experiment and a test case before running.");
+      return;
+    }
+
+    console.log("experiment run successfully");
+    alert("Experiment run successfully!");
   };
 
   return (
@@ -133,6 +146,18 @@ const ExperimentForm = () => {
               </option>
             ))}
           </select>
+        </div>
+      )}
+
+      {/* Run Experiment Button */}
+      {experiment && selectedTestCase && (
+        <div className="mt-4">
+          <button
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            onClick={handleRunExperiment}
+          >
+            Run Experiment
+          </button>
         </div>
       )}
     </div>
