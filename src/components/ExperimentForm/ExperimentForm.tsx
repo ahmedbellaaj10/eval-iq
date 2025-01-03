@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { ChatFireworks } from "@langchain/community/chat_models/fireworks";
+import { ChatMistralAI } from "@langchain/mistralai";
+import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+
+import dotenv from "dotenv";
+dotenv.config();
 
 const ExperimentForm = () => {
   const [llms, setLlms] = useState([]);
@@ -7,11 +13,12 @@ const ExperimentForm = () => {
   const [systemPrompts, setSystemPrompts] = useState([]);
   const [testCases, setTestCases] = useState([]);
   const [selectedIQAspect, setSelectedIQAspect] = useState("");
-  const [selectedLlm, setSelectedLlm] = useState("");
+  const [selectedLlm, setSelectedLlm] = useState<any>(null); // Store both id and name
   const [selectedSystemPrompt, setSelectedSystemPrompt] = useState<any>(null);
   const [experiment, setExperiment] = useState<any>(null);
   const [filteredTestCases, setFilteredTestCases] = useState<any[]>([]);
   const [selectedTestCase, setSelectedTestCase] = useState("");
+  const [experimentResult, setExperimentResult] = useState<any>(null);
 
   // Fetch initial data
   useEffect(() => {
@@ -58,10 +65,9 @@ const ExperimentForm = () => {
     }
 
     try {
-      // Fetch or load the experiment
       const response = await axios.get("/api/experiments", {
         params: {
-          llm_id: selectedLlm,
+          llm_id: selectedLlm.id, // Use LLM ID for fetching experiment
           system_prompt_id: selectedSystemPrompt.id,
         },
       });
@@ -73,15 +79,63 @@ const ExperimentForm = () => {
     }
   };
 
-  const handleRunExperiment = () => {
+  const handleRunExperiment = async () => {
     if (!experiment || !selectedTestCase) {
       alert("Please select an experiment and a test case before running.");
       return;
     }
-
-    console.log("experiment run successfully");
-    alert("Experiment run successfully!");
+  
+    try {
+      const testCase = filteredTestCases.find(
+        (tc) => tc.id === Number(selectedTestCase)
+      );
+  
+      if (!testCase) {
+        alert("Invalid test case selected.");
+        return;
+      }
+  
+      const messages = [
+        { role: "system", content: selectedSystemPrompt.prompt },
+        { role: "user", content: testCase.prompt },
+      ];
+  
+      let apiEndpoint = "";
+  
+      if (selectedLlm.name === "Llama v3.1") {
+        apiEndpoint = "/api/fireworks"; // Route for Llama
+      } else if (selectedLlm.name === "Mistral Large") {
+        apiEndpoint = "/api/mistral"; // Route for Mistral
+      } else {
+        alert("Unsupported LLM selected.");
+        return;
+      }
+  
+      const response = await axios.post(apiEndpoint, {
+        model:
+          selectedLlm.name === "Llama v3.1"
+            ? "accounts/fireworks/models/llama-v3p1-70b-instruct"
+            : "mistral-large-latest",
+        messages,
+      });
+  
+      if (response.status === 200 && response.data) {
+        setExperimentResult({
+          expected: testCase.expected_output,
+          generated: response.data.choices[0]?.message?.content || "No response",
+        });
+        alert("Experiment run successfully!");
+      } else {
+        alert("Failed to get a valid response from the API.");
+      }
+    } catch (error) {
+      console.error("Error running experiment:", error);
+      alert("Failed to run experiment. Please try again.");
+    }
   };
+  
+  
+  
 
   return (
     <div className="p-4 bg-white shadow-md rounded-md">
@@ -104,8 +158,11 @@ const ExperimentForm = () => {
       {/* LLM Dropdown */}
       <select
         className="w-full mb-4 p-2 border rounded"
-        value={selectedLlm}
-        onChange={(e) => setSelectedLlm(e.target.value)}
+        value={selectedLlm?.id || ""}
+        onChange={(e) => {
+          const selected = llms.find((llm: any) => llm.id === Number(e.target.value));
+          setSelectedLlm(selected || null);
+        }}
       >
         <option value="">Select LLM</option>
         {llms.map((llm: any) => (
@@ -158,6 +215,19 @@ const ExperimentForm = () => {
           >
             Run Experiment
           </button>
+        </div>
+      )}
+
+      {/* Experiment Results */}
+      {experimentResult && (
+        <div className="mt-6 p-4 bg-gray-100 rounded-md">
+          <h4 className="font-bold text-lg mb-2">Experiment Result:</h4>
+          <p>
+            <strong>Expected Response:</strong> {experimentResult.expected}
+          </p>
+          <p>
+            <strong>Generated Response:</strong> {experimentResult.generated}
+          </p>
         </div>
       )}
     </div>
